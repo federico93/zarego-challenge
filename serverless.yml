@@ -1,0 +1,68 @@
+service: test-serverless-framework
+frameworkVersion: '3'
+
+custom:
+  tableName: '${sls:stage}-loyalty-cards-table'
+  # Local DynamoDB settings
+  serverless-dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [ UsersTable, Arn ]
+  environment:
+    # TO-DO: setup .env
+    DB_HANDLER_PROVIDER: DYNAMO_DB
+    LOYALTY_CARDS_TABLE_NAME: ${self:custom.tableName}
+    AWS_REGION: localhost
+    DYNAMO_DB_ENDPOINT: http://0.0.0.0:8000
+    DYNAMO_DB_ACCESS_KEY: MockAccessKeyId
+    DYNAMO_DB_SECRET_KEY: MockSecretAccessKey
+
+functions:
+  createLoyaltyCard:
+    handler: src/httpHandler.createLoyaltyCard
+    events:
+      - httpApi:
+          path: /loyalty-cards
+          method: post
+    # TO-DO: Add Dead Letter Queue
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: cardNumber
+            AttributeType: S
+        KeySchema:
+          - AttributeName: cardNumber
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+  - serverless-dynamodb
