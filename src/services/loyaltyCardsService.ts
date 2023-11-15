@@ -1,6 +1,8 @@
 import { LoyaltyCardsRepository } from "../repositories/loyaltyCardsRepository";
-import { CreateLoyaltyCardDTO, LoyaltyCardDTO } from "../common/dtos";
+import { CreateLoyaltyCardDTO, LoyaltyCardDTO } from "../common/types/dtos";
 import { LoyaltyCard } from "../common/types/loyaltyCard";
+import { AlreadyExistsError } from "../common/errors/alreadyExistsError";
+import { ErrorBase } from "../common/errors/errorBase";
 
 export class LoyaltyCardsService {
     private _repo: LoyaltyCardsRepository;
@@ -14,7 +16,7 @@ export class LoyaltyCardsService {
 
         if (loyaltyCard !== null) {
             console.log("CreateLoyaltyCard Error: loyalty card already exists", loyaltyCard);
-            throw new Error("CreateLoyaltyCard Error: loyalty card already exists");
+            throw new AlreadyExistsError("Loyalty card already exists!");
         }
 
         const currentDate: Date = new Date();
@@ -31,7 +33,7 @@ export class LoyaltyCardsService {
         const result: boolean = await this._repo.create(loyaltyCard);
 
         if (!result) {
-            throw new Error('Couldn\'t create loyalty card');
+            throw new ErrorBase('Couldn\'t create loyalty card');
         }
 
         const createdLoyaltyCard = await this._repo.getByCardNumber(createLoyaltyCardDTO.cardNumber);
