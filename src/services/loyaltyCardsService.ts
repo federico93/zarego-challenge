@@ -1,8 +1,8 @@
-import { LoyaltyCardsRepository } from "../repositories/loyaltyCardsRepository";
-import { CreateLoyaltyCardDTO, LoyaltyCardDTO } from "../common/types/dtos";
+import { ListLoyaltyCardsResult, LoyaltyCardsRepository } from "../repositories/loyaltyCardsRepository";
+import { CreateLoyaltyCardDTO, ListLoyaltyCardsDTO, LoyaltyCardDTO } from "../common/types/dtos";
 import { LoyaltyCard } from "../common/types/loyaltyCard";
 import { AlreadyExistsError } from "../common/errors/alreadyExistsError";
-import { ErrorBase } from "../common/errors/errorBase";
+import { NotFoundError } from "../common/errors/notFoundError";
 
 export class LoyaltyCardsService {
     private _repo: LoyaltyCardsRepository;
@@ -30,11 +30,7 @@ export class LoyaltyCardsService {
             currentDate
         );
 
-        const result: boolean = await this._repo.create(loyaltyCard);
-
-        if (!result) {
-            throw new ErrorBase('Couldn\'t create loyalty card');
-        }
+        await this._repo.create(loyaltyCard);
 
         const createdLoyaltyCard = await this._repo.getByCardNumber(createLoyaltyCardDTO.cardNumber);
 
@@ -48,5 +44,43 @@ export class LoyaltyCardsService {
         };
 
         return loyaltyCardDTO;
+    }
+
+    public findLoyaltyCard = async (cardNumber: string): Promise<LoyaltyCardDTO> => {
+        const loyaltyCard: LoyaltyCard | null = await this._repo.getByCardNumber(cardNumber);
+
+        if (loyaltyCard === null) {
+            console.log(`FindLoyaltyCard Error: loyalty card with number ${cardNumber} not found`);
+            throw new NotFoundError(`Loyalty card with number ${cardNumber} not found`);
+        }
+
+        const loyaltyCardDTO: LoyaltyCardDTO = {
+            firstName: loyaltyCard.firstName,
+            lastName: loyaltyCard.lastName,
+            cardNumber: loyaltyCard.cardNumber,
+            points: loyaltyCard.points,
+            createdAt: loyaltyCard.createdAt.toISOString(),
+            lastUpdatedAt: loyaltyCard.lastUpdatedAt.toISOString()
+        };
+
+        return loyaltyCardDTO;
+    }
+
+    public listLoyaltyCards = async (limit: number, nextToken: string): Promise<ListLoyaltyCardsDTO> => {
+        const listResult: ListLoyaltyCardsResult = await this._repo.list(limit, nextToken);
+
+        return {
+            loyaltyCards: listResult.loyaltyCards.map((loyaltyCard): LoyaltyCardDTO => {
+                return {
+                    firstName: loyaltyCard.firstName,
+                    lastName: loyaltyCard.lastName,
+                    cardNumber: loyaltyCard.cardNumber,
+                    points: loyaltyCard.points,
+                    createdAt: loyaltyCard.createdAt.toISOString(),
+                    lastUpdatedAt: loyaltyCard.lastUpdatedAt.toISOString()
+                }
+            }),
+            nextToken: listResult.nextToken
+        };
     }
 };

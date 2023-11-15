@@ -10,3 +10,8 @@ export interface LoyaltyCardDTO extends CreateLoyaltyCardDTO {
     createdAt: string,
     lastUpdatedAt: string
 };
+
+export interface ListLoyaltyCardsDTO {
+    loyaltyCards: LoyaltyCardDTO[],
+    nextToken: string | null
+}

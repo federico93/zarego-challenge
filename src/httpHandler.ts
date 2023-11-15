@@ -11,3 +11,5 @@ const loyaltyCardsService: LoyaltyCardsService = new LoyaltyCardsService(loyalty
 const loyaltyCardsController: LoyaltyCardsController = new LoyaltyCardsController(loyaltyCardsService);
 
 export const createLoyaltyCard = loyaltyCardsController.createLoyaltyCard;
+export const findLoyaltyCard = loyaltyCardsController.findLoyaltyCard;
+export const listLoyaltyCards = loyaltyCardsController.listLoyaltyCards;

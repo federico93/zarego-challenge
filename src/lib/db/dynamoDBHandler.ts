@@ -1,6 +1,11 @@
 import { DBHandler } from "./dbHandler";
 
-import { DynamoDBDocumentClient, PutCommand, GetCommand, PutCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+
+export interface DynamoDBQueryResult {
+    items: any[],
+    nextToken: string | null
+};
 
 export class DynamoDBHandler implements DBHandler {
     private _docClient: DynamoDBDocumentClient;
@@ -9,7 +14,7 @@ export class DynamoDBHandler implements DBHandler {
         this._docClient = docClient;
     }
 
-    public create = async (tableName: string, dbItem: Object): Promise<boolean> => {
+    public create = async (tableName: string, dbItem: object): Promise<boolean> => {
         const command: PutCommand = new PutCommand({
             TableName: tableName,
             Item: dbItem
@@ -34,5 +39,22 @@ export class DynamoDBHandler implements DBHandler {
         const result = await this._docClient.send(command);
 
         return result?.Item ?? null;
+    }
+
+    public scan = async (tableName: string, limit: number, nextToken: string): Promise<DynamoDBQueryResult> => {
+        const decodedNextToken = nextToken ? JSON.parse(Buffer.from(nextToken, 'base64').toString('ascii')) : undefined;
+
+        const command: ScanCommand = new ScanCommand({
+            TableName: tableName,
+            ExclusiveStartKey: decodedNextToken,
+            Limit: limit
+        });
+
+        const result = await this._docClient.send(command);
+
+        return {
+            items: result.Items,
+            nextToken: result.LastEvaluatedKey ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString('base64') : null
+        };
     }
 }

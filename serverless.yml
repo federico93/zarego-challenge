@@ -45,6 +45,18 @@ functions:
           path: /loyalty-cards
           method: post
     # TO-DO: Add Dead Letter Queue
+  findLoyaltyCard:
+    handler: src/httpHandler.findLoyaltyCard
+    events:
+      - httpApi:
+          path: /loyalty-cards/{cardNumber}
+          method: get
+  listLoyaltyCards:
+    handler: src/httpHandler.listLoyaltyCards
+    events:
+      - httpApi:
+          path: /loyalty-cards
+          method: get
 
 resources:
   Resources:

@@ -1,5 +1,11 @@
 import { LoyaltyCard } from "../common/types/loyaltyCard";
 import { DBHandler } from "../lib/db/dbHandler";
+import { DynamoDBQueryResult } from "../lib/db/dynamoDBHandler";
+
+export interface ListLoyaltyCardsResult {
+    loyaltyCards: LoyaltyCard[],
+    nextToken: string | null
+};
 
 export class LoyaltyCardsRepository {
     private _db: DBHandler;
@@ -35,5 +41,21 @@ export class LoyaltyCardsRepository {
             new Date(dbItem.createdAt),
             new Date(dbItem.lastUpdatedAt)
         ) : null;
+    }
+
+    public list = async (limit: number, nextToken: string): Promise<ListLoyaltyCardsResult> => {
+        const queryResult: DynamoDBQueryResult = await this._db.scan(this._tableName, limit, nextToken);
+
+        return {
+            loyaltyCards: queryResult.items.map((dbItem): LoyaltyCard => new LoyaltyCard(
+                dbItem.firstName,
+                dbItem.lastName,
+                dbItem.cardNumber,
+                dbItem.points,
+                new Date(dbItem.createdAt),
+                new Date(dbItem.lastUpdatedAt)
+            )),
+            nextToken: queryResult.nextToken
+        }
     }
 }
