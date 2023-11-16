@@ -1,13 +1,12 @@
 import { APIGatewayEvent, Context, Handler } from "aws-lambda";
 
 import createLoyaltyCardSchema from "./schemas/createLoyaltyCard.json";
-import { validate } from "../lib/jsonValidator";
+import { validate, JSONValidationResult } from "../lib/jsonValidator";
 import { CreateLoyaltyCardDTO, ListLoyaltyCardsDTO, LoyaltyCardDTO } from "../common/types/dtos";
 import { LoyaltyCardsService } from "../services/loyaltyCardsService";
 import { HTTP_CODE_BAD_REQUEST, HTTP_CODE_INTERNAL_SERVER_ERROR, HTTP_CODE_NOT_FOUND, HTTP_CODE_OK, HttpCode } from "./httpCode";
 import { AlreadyExistsError } from "../common/errors/alreadyExistsError";
 import { NotFoundError } from "../common/errors/notFoundError";
-import { JSONValidationResult } from "../lib/jsonValidator/jsonValidator";
 import { HttpMessage } from "./httpMessage";
 
 const LIST_DEFAULT_LIMIT = 50;

@@ -2,7 +2,7 @@ import { DBHandler } from "./dbHandler";
 
 import { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
-export interface DynamoDBQueryResult {
+export interface DynamoDBScanResult {
     items: any[],
     nextToken: string | null
 };
@@ -41,7 +41,7 @@ export class DynamoDBHandler implements DBHandler {
         return result?.Item ?? null;
     }
 
-    public scan = async (tableName: string, limit: number, nextToken: string): Promise<DynamoDBQueryResult> => {
+    public scan = async (tableName: string, limit: number, nextToken: string): Promise<DynamoDBScanResult> => {
         const decodedNextToken = nextToken ? JSON.parse(Buffer.from(nextToken, 'base64').toString('ascii')) : undefined;
 
         const command: ScanCommand = new ScanCommand({

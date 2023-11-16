@@ -1,3 +1,3 @@
-import { validate } from "./jsonValidator";
+import { validate, JSONValidationResult } from "./jsonValidator";
 
-export { validate };
+export { validate, JSONValidationResult };

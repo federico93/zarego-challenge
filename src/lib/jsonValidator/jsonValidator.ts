@@ -1,4 +1,4 @@
-import Ajv, { JSONSchemaType, ValidateFunction } from "ajv";
+import Ajv, { ValidateFunction } from "ajv";
 
 export interface JSONValidationResult {
     valid: boolean,
