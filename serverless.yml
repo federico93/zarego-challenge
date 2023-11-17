@@ -1,4 +1,4 @@
-service: test-serverless-framework
+service: zarego-loyalty-app
 frameworkVersion: '3'
 
 custom:
@@ -53,7 +53,6 @@ provider:
     LOYALTY_CARDS_QUEUE_URL: !Ref LoyaltyCardsQueue
     DEV_LOYALTY_CARDS_QUEUE_URL: ${env:DEV_LOYALTY_CARDS_QUEUE_URL}
     DB_HANDLER_PROVIDER: ${env:DB_HANDLER_PROVIDER}
-    AWS_REGION: ${env:AWS_REGION}
     DYNAMO_DB_ENDPOINT: ${env:DYNAMO_DB_ENDPOINT}
     DYNAMO_DB_ACCESS_KEY: ${env:DYNAMO_DB_ACCESS_KEY}
     DYNAMO_DB_SECRET_KEY: ${env:DYNAMO_DB_SECRET_KEY}
@@ -74,7 +73,6 @@ functions:
       - httpApi:
           path: /loyalty-cards
           method: post
-    # TO-DO: Add Dead Letter Queue
   findLoyaltyCard:
     handler: src/httpHandler.findLoyaltyCard
     events:
@@ -117,10 +115,6 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-    LoyaltyCardsBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:custom.bucketName}
     LoyaltyCardsQueue:
       Type: AWS::SQS::Queue
       Properties:
