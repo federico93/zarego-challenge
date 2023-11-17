@@ -7,7 +7,7 @@ export interface ListLoyaltyCardsResult {
     nextToken: string | null
 };
 
-export class LoyaltyCardsRepository {
+export class LoyaltyCardsDBRepository {
     private _db: DBHandler;
     private _tableName: string = process.env.LOYALTY_CARDS_TABLE_NAME;
 

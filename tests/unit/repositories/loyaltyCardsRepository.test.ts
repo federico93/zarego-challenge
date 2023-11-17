@@ -1,7 +1,7 @@
 import { LoyaltyCard } from "../../../src/common/types/loyaltyCard";
 import { DBHandler } from "../../../src/lib/db/dbHandler";
 import { DynamoDBScanResult } from "../../../src/lib/db/dynamoDBHandler";
-import { LoyaltyCardsRepository } from "../../../src/repositories/loyaltyCardsRepository";
+import { LoyaltyCardsDBRepository } from "../../../src/repositories/loyaltyCardsDBRepository";
 import { generateRandomString } from "../../utils/utils";
 
 const fakeLoyaltyCard: LoyaltyCard = new LoyaltyCard(
@@ -37,7 +37,7 @@ const DBHandlerMock: DBHandler = {
     })
 };
 
-const repo = new LoyaltyCardsRepository(DBHandlerMock);
+const repo = new LoyaltyCardsDBRepository(DBHandlerMock);
 
 describe('Test Loyalty Cards Repository', () => {
     describe('Create loyalty card', () => {

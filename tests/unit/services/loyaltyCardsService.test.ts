@@ -1,12 +1,12 @@
 import { LoyaltyCardsService } from "../../../src/services/loyaltyCardsService";
-import { ListLoyaltyCardsResult, LoyaltyCardsRepository } from "../../../src/repositories/loyaltyCardsRepository";
+import { ListLoyaltyCardsResult, LoyaltyCardsDBRepository } from "../../../src/repositories/loyaltyCardsDBRepository";
 import { CreateLoyaltyCardDTO, LoyaltyCardDTO } from "../../../src/common/types/dtos";
 import { LoyaltyCard } from "../../../src/common/types/loyaltyCard";
 import { generateRandomString } from "../../utils/utils";
 import { NotFoundError } from "../../../src/common/errors/notFoundError";
 import { AlreadyExistsError } from "../../../src/common/errors/alreadyExistsError";
 
-const repoMock = jest.createMockFromModule<LoyaltyCardsRepository>("../../../src/repositories/loyaltyCardsRepository");
+const repoMock = jest.createMockFromModule<LoyaltyCardsDBRepository>("../../../src/repositories/loyaltyCardsDBRepository");
 
 const fakeLoyaltyCard: LoyaltyCard = new LoyaltyCard(
     generateRandomString(), // firstName
