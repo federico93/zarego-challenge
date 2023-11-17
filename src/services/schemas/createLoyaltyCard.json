@@ -1,0 +1,24 @@
+{
+    "type": "object",
+    "properties": {
+      "firstName": {
+        "type": "string"
+      },
+      "lastName": {
+        "type": "string"
+      },
+      "cardNumber": {
+        "type": "string",
+        "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$"
+      },
+      "points": {
+        "type": "integer"
+      }
+    },
+    "required": [
+      "firstName",
+      "lastName",
+      "cardNumber"
+    ],
+    "additionalProperties": false
+}
