@@ -9,6 +9,7 @@ import { ListLoyaltyCardsDTO, LoyaltyCardDTO } from "../../../src/common/types/d
 import { HTTP_CODE_BAD_REQUEST, HTTP_CODE_INTERNAL_SERVER_ERROR, HTTP_CODE_NOT_FOUND, HTTP_CODE_OK } from "../../../src/controllers/httpCode";
 import { AlreadyExistsError } from "../../../src/common/errors/alreadyExistsError";
 import { NotFoundError } from "../../../src/common/errors/notFoundError";
+import { InvalidDataError } from "../../../src/common/errors/invalidDataError";
 
 const serviceMock = jest.createMockFromModule<LoyaltyCardsService>("../../../src/services/loyaltyCardsService");
 
@@ -119,12 +120,17 @@ describe('Test Loyalty Cards Controller', () => {
         });
 
         it('Should return bad request invalid data', async () => {
-            const requestBody = {};
+            const requestBody = {
+                firstName: generateRandomString(),
+                lastName: generateRandomString(),
+                cardNumber: "1111-2222-3333-4444"
+            };
     
             const event: APIGatewayEvent = mockAPIGatewayEvent("post", "/loyalty-cards", requestBody);
             const context: Context = mockContext();
 
-            serviceMock.createLoyaltyCard = jest.fn().mockRejectedValue(new Error("Should not be called"));
+            const errorMessage = "Invalid data";
+            serviceMock.createLoyaltyCard = jest.fn().mockRejectedValue(new InvalidDataError(errorMessage));
 
             const result: HttpMessage = await controller.createLoyaltyCard(event, context, () => {});
 
@@ -133,11 +139,12 @@ describe('Test Loyalty Cards Controller', () => {
                 body: expect.any(String)
             });
 
-            expect(JSON.parse(result.body)).toMatchObject({
-                message: expect.stringContaining("must have required property")
+            expect(JSON.parse(result.body)).toEqual({
+                message: errorMessage
             });
 
-            expect(serviceMock.createLoyaltyCard).toHaveBeenCalledTimes(0);
+            expect(serviceMock.createLoyaltyCard).toHaveBeenCalledTimes(1);
+            expect(serviceMock.createLoyaltyCard).toHaveBeenCalledWith(expect.objectContaining(requestBody));
         });
 
         it('Should return bad request already exists', async () => {

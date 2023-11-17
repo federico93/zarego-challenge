@@ -18,5 +18,10 @@ export const validate = (data: object, schema: object): JSONValidationResult => 
 }
 
 const getErrorMessage = (errors: ErrorObject[]): string | undefined => {
-    return errors?.length ? `${errors[0].instancePath}: ${errors[0].message}` : undefined;
+    if (!errors?.length) {
+        return undefined;
+    }
+
+    let errorMessage = (errors[0].instancePath?.length ?? 0) > 0 ? `${errors[0].instancePath}: ` : '';
+    return errorMessage + errors[0].message;
 }

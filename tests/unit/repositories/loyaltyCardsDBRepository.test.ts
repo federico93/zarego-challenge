@@ -39,7 +39,7 @@ const DBHandlerMock: DBHandler = {
 
 const repo = new LoyaltyCardsDBRepository(DBHandlerMock);
 
-describe('Test Loyalty Cards Repository', () => {
+describe('Test Loyalty Cards DB Repository', () => {
     describe('Create loyalty card', () => {
         it('Should create loyalty card', () => {
             expect(repo.create(fakeLoyaltyCard)).resolves.toBeTruthy();
