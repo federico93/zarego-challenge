@@ -62,4 +62,15 @@ export class LoyaltyCard {
     public set lastUpdatedAt(value: Date) {
         this._lastUpdatedAt = value;
     }
+
+    public toJSON(): string {
+        return JSON.stringify({
+            cardNumber: this.cardNumber,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            points: this.points,
+            createdAt: this.createdAt?.toISOString(),
+            lastUpdatedAt: this.lastUpdatedAt?.toISOString()
+        });
+    }
 }

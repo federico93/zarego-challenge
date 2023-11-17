@@ -7,7 +7,7 @@ import { DBHandler } from "./lib/db/dbHandler";
 const dbHandler: DBHandler = DBHandlerFactory.getHandler(process.env.DB_HANDLER_PROVIDER as DBHandlerProvider);
 
 const loyaltyCardsDBRepository: LoyaltyCardsDBRepository = new LoyaltyCardsDBRepository(dbHandler);
-const loyaltyCardsService: LoyaltyCardsService = new LoyaltyCardsService(loyaltyCardsDBRepository);
+const loyaltyCardsService: LoyaltyCardsService = new LoyaltyCardsService({ db: loyaltyCardsDBRepository });
 const loyaltyCardsController: LoyaltyCardsController = new LoyaltyCardsController(loyaltyCardsService);
 
 export const createLoyaltyCard = loyaltyCardsController.createLoyaltyCard;

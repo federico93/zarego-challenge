@@ -3,3 +3,8 @@ export interface DBHandler {
     getByPrimaryKey: (tableName: string, pkField: string, pkValue: string) => Promise<any>,
     scan: (tableName: string, limit: number, nextToken: string) => Promise<any>
 };
+
+export interface DBScanResult {
+    items: any[],
+    nextToken: string | null
+};

@@ -3,6 +3,8 @@ frameworkVersion: '3'
 
 custom:
   tableName: '${sls:stage}-loyalty-cards-table'
+  bucketName: '${sls:stage}-loyalty-cards-bucket'
+  queueName: '${sls:stage}-loyalty-cards-queue'
   # Local DynamoDB settings
   serverless-dynamodb:
     stages:
@@ -11,6 +13,19 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
+  # Local S3 settings
+  s3:
+    host: localhost
+    directory: /tmp
+  # Local SQS settings
+  serverless-offline-sqs:
+    autoCreate: true
+    apiVersion: '2012-11-05'
+    endpoint: http://0.0.0.0:9324
+    region: us-east-1
+    accessKeyId: root
+    secretAccessKey: root
+    skipCacheInvalidation: false
 
 useDotenv: true
 
@@ -29,15 +44,28 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [ UsersTable, Arn ]
+            - Fn::GetAtt: [ LoyaltyCardsTable, Arn ]
   environment:
-    # TO-DO: setup .env
+    STAGE: ${sls:stage}
     LOYALTY_CARDS_TABLE_NAME: ${self:custom.tableName}
+    LOYALTY_CARDS_BUCKET_NAME: ${self:custom.bucketName}
+    LOYALTY_CARDS_QUEUE_NAME: ${self:custom.queueName}
+    LOYALTY_CARDS_QUEUE_URL: !Ref LoyaltyCardsQueue
+    DEV_LOYALTY_CARDS_QUEUE_URL: ${env:DEV_LOYALTY_CARDS_QUEUE_URL}
     DB_HANDLER_PROVIDER: ${env:DB_HANDLER_PROVIDER}
     AWS_REGION: ${env:AWS_REGION}
     DYNAMO_DB_ENDPOINT: ${env:DYNAMO_DB_ENDPOINT}
     DYNAMO_DB_ACCESS_KEY: ${env:DYNAMO_DB_ACCESS_KEY}
     DYNAMO_DB_SECRET_KEY: ${env:DYNAMO_DB_SECRET_KEY}
+
+    FILES_HANDLER_PROVIDER: ${env:FILES_HANDLER_PROVIDER}
+    S3_ENDPOINT: ${env:S3_ENDPOINT}
+    S3_ACCESS_KEY: ${env:S3_ACCESS_KEY}
+    S3_SECRET_KEY: ${env:S3_SECRET_KEY}
+    QUEUE_HANDLER_PROVIDER: ${env:QUEUE_HANDLER_PROVIDER}
+    SQS_ENDPOINT: ${env:SQS_ENDPOINT}
+    SQS_ACCESS_KEY: ${env:SQS_ACCESS_KEY}
+    SQS_SECRET_KEY: ${env:SQS_SECRET_KEY}
 
 functions:
   createLoyaltyCard:
@@ -59,10 +87,24 @@ functions:
       - httpApi:
           path: /loyalty-cards
           method: get
+  newLoyaltyCardsFile:
+    handler: src/listeners/newLoyaltyCardsFileListener.handler
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .csv
+  newLoyaltyCardsQueueMessage:
+    handler: src/listeners/newLoyaltyCardsQueueMessageListener.handler
+    events:
+      - sqs:
+          arn:
+            !GetAtt LoyaltyCardsQueue.Arn
 
 resources:
   Resources:
-    UsersTable:
+    LoyaltyCardsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:custom.tableName}
@@ -75,8 +117,18 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    LoyaltyCardsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
+    LoyaltyCardsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.queueName}
 
 plugins:
   - serverless-plugin-typescript
+  - serverless-s3-local
+  - serverless-offline-sqs
   - serverless-offline
   - serverless-dynamodb

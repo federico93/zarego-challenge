@@ -1,4 +1,4 @@
-import Ajv, { ValidateFunction } from "ajv";
+import Ajv, { ErrorObject, ValidateFunction } from "ajv";
 
 export interface JSONValidationResult {
     valid: boolean,
@@ -11,7 +11,12 @@ export const validate = (data: object, schema: object): JSONValidationResult => 
     const validate: ValidateFunction = ajv.compile<object>(schema);
 
     const valid: boolean = validate(data);
-    const errorMessage: string = (validate.errors?.length ?? 0) > 0 ? validate.errors.shift().message : undefined;
+
+    const errorMessage: string = getErrorMessage(validate.errors);
 
     return { valid, errorMessage };
+}
+
+const getErrorMessage = (errors: ErrorObject[]): string | undefined => {
+    return errors?.length ? `${errors[0].instancePath}: ${errors[0].message}` : undefined;
 }

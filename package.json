@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "sls offline start --reloadHandler",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "docker:start": "docker run --name Fake-SQS -d -p 9324:9324 softwaremill/elasticmq"
   },
   "devDependencies": {
     "@serverless/event-mocks": "^1.1.1",
@@ -12,14 +13,19 @@
     "jest": "^29.7.0",
     "serverless-dynamodb": "^0.2.47",
     "serverless-offline": "^13.2.1",
+    "serverless-offline-sqs": "^8.0.0",
     "serverless-plugin-typescript": "^2.1.5",
+    "serverless-s3-local": "^0.8.1",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.451.0",
+    "@aws-sdk/client-s3": "^3.451.0",
+    "@aws-sdk/client-sqs": "^3.451.0",
     "@aws-sdk/lib-dynamodb": "^3.451.0",
-    "ajv": "^8.12.0"
+    "ajv": "^8.12.0",
+    "csv-parse": "^5.5.2"
   }
 }

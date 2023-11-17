@@ -1,11 +1,8 @@
-import { DBHandler } from "./dbHandler";
+import { DBHandler, DBScanResult } from "./dbHandler";
 
 import { DynamoDBDocumentClient, PutCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
-export interface DynamoDBScanResult {
-    items: any[],
-    nextToken: string | null
-};
+export interface DynamoDBScanResult extends DBScanResult {};
 
 export class DynamoDBHandler implements DBHandler {
     private _docClient: DynamoDBDocumentClient;
