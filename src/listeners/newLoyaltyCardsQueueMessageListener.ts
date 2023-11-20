@@ -25,20 +25,22 @@ const service: LoyaltyCardsService = new LoyaltyCardsService({
 });
 
 export const handler: Handler = async (event: SQSEvent, context: Context) => {
-    event.Records.forEach(async (record: SQSRecord) => {
+    await Promise.all(event.Records.map(async (record: SQSRecord) => {
         const createLoyaltyCardDTO: CreateLoyaltyCardDTO = JSON.parse(record.body);
 
         try {
-            await service.createLoyaltyCard(createLoyaltyCardDTO);
+            const loyaltyCard: LoyaltyCardDTO = await service.createLoyaltyCard(createLoyaltyCardDTO);
 
-            console.log(`Created card ${createLoyaltyCardDTO.cardNumber}`);
+            console.log(`Created card ${loyaltyCard.cardNumber}`);
         } catch (err) {
             if (err instanceof AlreadyExistsError) {
                 console.log("Listener: already exists, ignoring");
                 return;
             }
 
+            console.log('Err', err);
+
             throw err;
         }
-    });
+    }));
 };
